@@ -29,7 +29,7 @@ bool initGL()
     if( error != GL_NO_ERROR )
     {
         //printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
-        printf( "Error initializing OpenGL!\n");
+        printf( "Error initializing OpenGL!\n" );
         return false;
     }
 

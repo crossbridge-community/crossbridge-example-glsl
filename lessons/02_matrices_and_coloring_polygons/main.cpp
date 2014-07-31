@@ -45,9 +45,10 @@ int main( int argc, char* args[] )
     glutDisplayFunc( render );
 
     #ifdef __AVM2__
+        printf( "AS3_GoAsync!\n" );
         AS3_GoAsync();
-        return 0;
     #endif
+    printf( "AFTER AS3_GoAsync!\n" );
     
     //Set main loop
     glutTimerFunc( 1000 / SCREEN_FPS, runMainLoop, 0 );

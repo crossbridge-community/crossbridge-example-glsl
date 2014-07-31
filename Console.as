@@ -132,7 +132,7 @@ public class Console extends Sprite implements ISpecialFile {
         if(_useStage3D) {
             _context3D = _stage3D.context3D
             _context3D.configureBackBuffer(stage.stageWidth, stage.stageHeight, 2, true /*enableDepthAndStencil*/)
-            _context3D.enableErrorChecking = false;
+            _context3D.enableErrorChecking = true;
             log("Stage3D context: " + _context3D.driverInfo);
             if (_context3D.driverInfo.indexOf("Software") != -1) {
                 log("Software mode unsupported...");
@@ -188,8 +188,8 @@ public class Console extends Sprite implements ISpecialFile {
         CModule.write32(_vgl_mx, _keyX);
         CModule.write32(_vgl_my, _keyY);
         if(_useStage3D) {
-            CModule.callI(_mainloopTickPtr, EMPTY_VECTOR);
             GLAPI.instance.context.clear(1, 1, 1);
+            CModule.callI(_mainloopTickPtr, EMPTY_VECTOR);
             GLAPI.instance.context.present();
         }
         if(_useBlitting) {

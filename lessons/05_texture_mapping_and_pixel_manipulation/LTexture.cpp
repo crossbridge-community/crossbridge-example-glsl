@@ -49,7 +49,8 @@ bool LTexture::loadTextureFromPixels32( GLuint* pixels, GLuint width, GLuint hei
     GLenum error = glGetError();
     if( error != GL_NO_ERROR )
     {
-        printf( "Error loading texture from %p pixels! %s\n", pixels, gluErrorString( error ) );
+        //printf( "Error loading texture from %p pixels! %s\n", pixels, gluErrorString( error ) );
+        printf( "Error loading texture from %p pixels!\n", pixels);
         return false;
     }
 
