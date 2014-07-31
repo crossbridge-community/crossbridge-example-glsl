@@ -4,4 +4,8 @@
 *.swc
 *.exe
 *.zip
-/temp/
+*.ipr
+*.iml
+*.iws
+temp/
+bin/

@@ -44,6 +44,11 @@ int main( int argc, char* args[] )
     //Set rendering function
     glutDisplayFunc( render );
 
+    #ifdef __AVM2__
+        AS3_GoAsync();
+        return 0;
+    #endif
+    
     //Set main loop
     glutTimerFunc( 1000 / SCREEN_FPS, runMainLoop, 0 );
 
@@ -61,4 +66,11 @@ void runMainLoop( int val )
 
     //Run frame one more time
     glutTimerFunc( 1000 / SCREEN_FPS, runMainLoop, val );
+}
+
+void draw()
+{
+    //Frame logic
+    update();
+    render();
 }

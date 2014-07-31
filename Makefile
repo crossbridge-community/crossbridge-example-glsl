@@ -68,14 +68,25 @@ all: clean init check $(VGL_TARGETS)
  
 #@curl -L -o $@.zip http://lazyfoo.net/tutorials/OpenGL/$@/$@.zip && mv $@.zip temp/ && unzip -qq temp/$@.zip && mv $@ lessons
 %:
-	"$(FLASCC)/usr/bin/g++" $(BASE_CFLAGS) lessons/$@/main.cpp $(GLS3D)/install/usr/lib/libGL.abc -symbol-abc=Console.abc \
-	-I../Example_freeglut/install/usr/include/ -I$(GLS3D)/install/usr/include/ -L../Example_freeglut/install/usr/lib/ -L$(GLS3D)/install/usr/lib/ \
-	-lglut -lGL -emit-swf -swf-version=$(SWF_VERSION) -swf-size=$(SWF_SIZE) -o $@.swf 
-
-include Makefile.common
-
-init:
-	$(ASC2) -AS3 -optimize \
+	# Generate VFS
+	@rm -rf lessons/$@/temp/
+	@mkdir -p lessons/$@/fs/
+	@mkdir -p lessons/$@/temp/
+	"$(FLASCC)/usr/bin/genfs" lessons/$@/fs/ --name=myfs --type=embed lessons/$@/temp/ttt
+	# Compile VFS
+	# TODO
+	$(ASC2) -AS3 -optimize -strict \
+	-import $(call nativepath,$(FLASCC)/usr/lib/builtin.abc) \
+	-import $(call nativepath,$(FLASCC)/usr/lib/playerglobal.abc) \
+	-import $(call nativepath,$(FLASCC)/usr/lib/BinaryData.abc) \
+	-import $(call nativepath,$(FLASCC)/usr/lib/ISpecialFile.abc) \
+	-import $(call nativepath,$(FLASCC)/usr/lib/IBackingStore.abc) \
+	-import $(call nativepath,$(FLASCC)/usr/lib/IVFS.abc) \
+	-import $(call nativepath,$(FLASCC)/usr/lib/InMemoryBackingStore.abc) \
+	-import $(call nativepath,$(FLASCC)/usr/lib/PlayerKernel.abc) \
+	lessons/$@/temp/ttt*.as -outdir lessons/$@/ -out myfs
+	# Generate Console.ABC
+	$(ASC2) -AS3 -optimize -strict \
 		-import $(call nativepath,$(FLASCC)/usr/lib/builtin.abc) \
 		-import $(call nativepath,$(FLASCC)/usr/lib/playerglobal.abc) \
 		-import $(call nativepath,$(GLS3D)/install/usr/lib/libGL.abc) \
@@ -88,7 +99,19 @@ init:
 		-import $(call nativepath,$(FLASCC)/usr/lib/C_Run.abc) \
 		-import $(call nativepath,$(FLASCC)/usr/lib/BinaryData.abc) \
 		-import $(call nativepath,$(FLASCC)/usr/lib/PlayerKernel.abc) \
-		Console.as -outdir . -out Console 
-    
+		-import $(call nativepath,lessons/$@/myfs.abc) \
+		Console.as -outdir lessons/$@/ -out Console 
+	# Generate Obj
+	#"$(FLASCC)/usr/bin/g++" -O4 -c lessons/$@/$@.cpp
+	#"$(FLASCC)/usr/bin/nm" $@.o | grep " T " | awk '{print $$3}' | sed 's/__/_/' >> exports-$@.txt 
+	# Generate Main.SWF
+	"$(FLASCC)/usr/bin/g++" $(BASE_CFLAGS) lessons/$@/main.cpp lessons/$@/LUtil.cpp $(GLS3D)/install/usr/lib/libGL.abc lessons/$@/myfs.abc -symbol-abc=lessons/$@/Console.abc \
+		-I$(GLS3D)/install/usr/include/ -L$(GLS3D)/install/usr/lib/ \
+		-I$(FLASCC)/../samples/Example_freeglut/install/usr/include/ -L$(FLASCC)/../samples/Example_freeglut/install/usr/lib/ \
+		-lSDL -lSDL_image -lSDL_mixer -lSDL_ttf -lglut -lGL -lvgl -lfreetype -lvorbis -logg -lwebp -ltiff -lpng -lz -ljpeg -lm  \
+		-emit-swf -swf-version=$(SWF_VERSION) -swf-size=$(SWF_SIZE) -o $@.swf 
+
+include Makefile.common
+  
 clean:
-	@rm -f *.swf *.swc *.bc *.abc *.exe *.zip
+	@rm -rf *.swf **/*.swc **/*.bc **/*.abc **/*.exe **/*.zip
